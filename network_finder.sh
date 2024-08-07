@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 for container in $(docker ps -q); do
     iflink=`docker exec -it $container sh -c 'cat /sys/class/net/eth0/iflink' 2>/dev/null`
@@ -15,5 +15,9 @@ for container in $(docker ps -q); do
     if [[ $network_id == "NETWORK" ]]; then
       network_id="------------"
     fi
-    echo $container:$veth:$network_id:$container_name
+    bridge_name="---------------"
+    if [[ $veth != "-----------" ]]; then
+      bridge_name="$(bridge link | grep $veth | awk '{print $7}')"
+    fi
+    echo $container:$veth:$bridge_name:$network_id:$container_name
 done
